@@ -12,25 +12,15 @@ from tkinter import ttk
 from enum import Enum
 import GUInotebook as NB
 
-#def ReadGcode(File1, File2, outfile):
-#	File1 = File1.get()
-#	File2 = File2.get()
-#	LastLine = 185 #where the actual Gcode begins. 
-#	startTime = time.time()
-#	writeToLog("F1 = " + str(File1) + "\nF2 = "+ str(File2)+"\nOutput File = " + outfile+"\n");
-#	with open(File1) as myFile1:
-#		with open(File2) as myFile2:
-#			readLines1 = myFile1.readlines()[0:LastLine]
-#			readLines2 = myFile2.readlines()[0:LastLine]
-#			for i in range(len(readLines1)):
-#				if(readLines1[i] != readLines2[i]):
-#					writeToLog("F1-LINE["+str(i)+"] " + readLines1[i] +"F2-LINE["+str(i)+"] " + readLines2[i])
-#	elapsedTime = time.time() - startTime
-#	m, s = divmod(elapsedTime, 60)
-#	h, m = divmod(m, 60)
-#	writeToLog("The operations took: %02d:%02d:%02d (H:M:S)" % (h, m, s))
-#	writeToLog("Finished!")
-tabSwitchName = {'Info':10,'Extruder':26, 'Layer':41,  'Additions':65,  'Infill':75,  'Support':89,  'Temperature':98, 'Cooling':109,  'GCode':138,  'Scripts':150,  'Other':163,  'Advanced':184, } #'Other':185 Must be manual
+
+DEBUGIN = True
+
+#for looking up the next tab to switch on by line number
+tabSwitchNum = {10:'Info', 26:'Extruder', 41:'Layer', 65:'Additions', 75:'Infill', 89:'Support', 98:'Temperature', 109:'Cooling',
+				138:'GCode', 150:'Scripts', 163:'Other', 184:'Advanced', 185:'LAST'}
+
+#tabSwitchName = {'Info':10,'Extruder':26, 'Layer':41,  'Additions':65,  'Infill':75,  'Support':89,  'Temperature':98, 'Cooling':109, 
+#				 'GCode':138,  'Scripts':150,  'Other':163,  'Advanced':184,  } #'Other':185 Must be manual
  
 class TabEnum(Enum):
 	Info = 0
@@ -45,8 +35,6 @@ class TabEnum(Enum):
 	Scripts = 9
 	Other = 10
 	Advanced = 11
-	#Info = 12
-	#Console = 13
 	
 	def describe(self):
 		return self.name, self.value
@@ -57,63 +45,107 @@ class TabEnum(Enum):
 	@property
 	def getTabValue(self):
 		retStr = TabEnum(self.tabNum)
-		return retStr	
+		return retStr
+	
+#On this line go to next tab.
+switchLineNums = [10,26,41,65,75,89,98,109,138,150,163,184,185]
+
+def lineArray(linein):
+	linein = StripUnwanted(linein)
+	arrayOut = linein.split(',',1)
+	#write("LineArray: " + str(arrayOut))
+	#write("\nLineArray: " + str(arrayOut))
+	return arrayOut
+
+def StripUnwanted(strin): #Remove the unwanted begining of the line.
+	
+	strin = strin.replace(';   ', "")
+	strin = strin.replace('; ', "")
+	strin = strin.replace('\n',"")
+	#write("\nStartStrip: "+strin)
+	return strin
 
 def mainRead(File1, File2, outFile, note):
-	#ReadGcode(File1, File2, outFile)
-    File1 = File1.get()
-    File2 = File2.get()
-    LastLine = 185 #where the actual Gcode begins. 
-    startTime = time.time()
+	
+	if DEBUGIN:
+		File1 = r'C:\Users\peter.t.copeland\Documents\Python\HandOfThe_King.gcode'
+		File2 = r'C:\Users\peter.t.copeland\Documents\Python\HandOfThe_King2.gcode'	
+	
+	else:
+		File1 = File1.get()
+		File2 = File2.get()
+	
+	LastLine = 185 #where the actual Gcode begins. 
+	startTime = time.time()
    # writeToLog("F1 = " + str(File1) + "\nF2 = "+ str(File2)+"\nOutput File = " + outfile+"\n");
-    currentTab = 1
-    nextLineTab = 10
-    with open(File1) as myFile1:
-        with open(File2) as myFile2:
-            readLines1 = myFile1.readlines()[0:LastLine]
-            readLines2 = myFile2.readlines()[0:LastLine]
-            for i in TabEnum:
-                strTabname=i
-                TabAdded = note.add_tab(Text= strTabname)
-            #for i in range(len(readLines1)):
-             #   if(readLines1[i] != readLines2[i]):
-             #       writeToLog("F1-LINE["+str(i)+"] " + readLines1[i] +"F2-LINE["+str(i)+"] " + readLines2[i])
-#    lastNum=0
-#    lastLabel = 185
-#    for i in Enu.TabEnum:
-#        numLabels = 0
-#        switchNum = 0 	#the number where we switch to the next Tab
-#        addedLabels = 0 # how we know what row to add the field to.
-#        columnCount = 1 #Keep track of how many entries per column we want. 
-		
-#        strTabname = i
-#        TabAdded = note.add_tab(text= strTabname)
-## m1 = NB.add_Pane(tab1, VERTICAL) #add the pane
-## f1 = NB.add_LblFrame(m1, "Overview") # add the frame		
-#        Name = str(i)
-#        for j in Enu.tabSwitchName:
-#            tabname_L = str(j)
-#            if(Name == tabname_L):
-#                switchNum = Enu.tabSwitchName.get(j)
-#                break
-#        numLabels = switchNum - lastNum
-#        for jk in Enu.LineNames:
-#            LineTitle_S = str(Enu.LineNames.get(jk))
-#            if(addedLabels % 30 == 0):
-#                columnCount = columnCount + 2
-#                addedLabels = 0
-#            if jk <= switchNum:
-#                if jk > lastNum:		
-#                    NB.Lbl(TabAdded, LineTitle_S, columnCount, addedLabels, (W))
-#                    addedLabels = addedLabels + 1
-#                    if jk == switchNum:
-#                        lastNum = switchNum
+	currentTab = 0
+	previousLast = 0 #start at 0
+	nextLineNumberPos = 0 #The next  
+	LineNumberPos = 0
+	with open(File1) as myFile1:
+		with open(File2) as myFile2:
+			readLines1 = myFile1.readlines()[0:LastLine]
+			readLines2 = myFile2.readlines()[0:LastLine]
+			for i in TabEnum:				
+				strTabname=str(i)
+				TabAdded = note.add_tab(text= strTabname)
+				currentLines_F1 = readLines1[previousLast:switchLineNums[currentTab]]
+				currentLines_F2 = readLines2[previousLast:switchLineNums[currentTab]]
+				
+				#write("TAB ADD:"+strTabname)
+				#write('previousLast:' + str(previousLast))	
+				#write('CurrentTab#:'+ str(currentTab))					
+				#write('\n\t\tRANGE:' + str(previousLast)+ ' : '+ str(switchLineNums[currentTab]))
+				#write('\n\nCurrent Line1s:\n' + str(currentLines_F1))
+				#write('\n\nCurrent Line2s:\n' + str(currentLines_F2))	
+				RowPos= 0 #Row for the textbox
+				for lineNum in range(len(currentLines_F1)):
+					#write("[LINEnumPos]" + str(LineNumberPos))
+					WriteDataAsEntry = ""
+					MatchingLines = False
+					if LineNumberPos >2:
+						CompareDataF1 = lineArray(currentLines_F1[lineNum])
+						#write("TESTPT1")
+						#write(str(CompareDataF1))
+						CompareDataF2 = lineArray(currentLines_F2[lineNum])
+						#write("TESTPT2")
+						#write(str(CompareDataF2))
+						WriteDataAsEntry = str(CompareDataF1[0]) + ':\t'+str(CompareDataF1[1]) +' : ' + str(CompareDataF2[1])
+						write(WriteDataAsEntry)					
+						MatchingLines = str(CompareDataF1[1]) == str(CompareDataF2[1])
+						NB.Lbl(TabAdded, str(CompareDataF1[0]), 1, RowPos, (W))
+						if MatchingLines == True:
+							NB.Lbl(TabAdded, '\t'+str(CompareDataF1[1]), 2, RowPos, (W))
+							NB.Lbl(TabAdded, ' : '+str(CompareDataF2[1]), 3, RowPos, (W))
+						else:
+							NB.Lblc(TabAdded, '\t'+str(CompareDataF1[1]), 'grey', 'red', 2, RowPos, (W))
+							NB.Lblc(TabAdded, ' : '+str(CompareDataF2[1]),'grey', 'red', 3, RowPos, (W))
+						RowPos = RowPos + 1
+					else:
+						WriteDataAsEntry = StripUnwanted(currentLines_F1[lineNum]) + ' : ' + StripUnwanted(currentLines_F2[lineNum])
+						if LineNumberPos == 0:
+							WriteDataAsEntry = "Version: " + WriteDataAsEntry
+						elif LineNumberPos == 1:
+							WriteDataAsEntry = "Date: " + WriteDataAsEntry
+						else:
+							WriteDataAsEntry = "IGNORE "
+						#write("CLS: " + CompareLineStart) 
+					LineNumberPos = LineNumberPos + 1
+				previousLast = switchLineNums[currentTab]
+				#write('Cng previousLast:' + str(previousLast))	
+				currentTab = currentTab + 1 #increment to the next tab
+				#write('Cng CurrentTab#:'+ str(currentTab))
+			
+				
+			#for i in range(len(readLines1)):
+			 #   if(readLines1[i] != readLines2[i]):
+			 #	   writeToLog("F1-LINE["+str(i)+"] " + readLines1[i] +"F2-LINE["+str(i)+"] " + readLines2[i])
 
-    elapsedTime = time.time() - startTime
-    m, s = divmod(elapsedTime, 60)
-    h, m = divmod(m, 60)
-    writeToLog("The operations took: %02d:%02d:%02d (H:M:S)" % (h, m, s))
-    writeToLog("Finished!")
+	elapsedTime = time.time() - startTime
+	m, s = divmod(elapsedTime, 60)
+	h, m = divmod(m, 60)
+	writeToLog("\nThe operations took: %02d:%02d:%02d (H:M:S)" % (h, m, s))
+	writeToLog("\nFinished!")
 
 def askopenfilename(fileNum, *args):
 	filename = tkFileDialog.askopenfilename(**NB.file_opt)
@@ -143,15 +175,15 @@ def writeToLog(msg):
 def LookupEnum(type, refNum):
 	refNum = int(refNum)
 	if(type == 1): #tab
-		if refNum < len(Enu.TabEnum):
-			write(str(Enu.TabEnum(refNum)))
+		if refNum < len(TabEnum):
+			write(str(TabEnum(refNum)))
 		else:
-			write('Not found Max:' + str(len(Enu.TabEnum)-1))
+			write('Not found Max:' + str(len(TabEnum)-1))
 	else: #label
 		write(Enu.LineNames.get(refNum, 'Number not defined'))
 	
 if __name__ == "__main__":
-	def write(x): writeToLog(x)
+	def write(x): writeToLog(str(x))
 	root = Tk()
 	root.title("Simplify3d gCode")
 	note = NB.Notebook(root, width= 800, height =700, activefg = 'Gray', inactivefg = 'black')
@@ -167,8 +199,9 @@ if __name__ == "__main__":
 	tab12 = note.add_tab(text = "Settings")
 	pt12 = NB.add_Pane(tab12)
 	fr12 = NB.add_LblFrame(pt12, "File Selections")
-	fr12_1 = NB.add_LblFrame(pt12, "Other Options")
+	#fr12_1 = NB.add_LblFrame(pt12, "Other Options")
 	fr12_2 = NB.add_LblFrame(pt12, "Console")
+		
 	
 	NB.LblTV(fr12, File1, 2, 2, W)
 	NB.LblTV(fr12, File2, 2, 3, W)
@@ -176,20 +209,22 @@ if __name__ == "__main__":
 	Button(fr12, text="Open File 2", command=(lambda:askopenfilename(1))).grid(column=1, row=3, sticky=(W))
 	Button(fr12, text="Open File 1", command=(lambda:askopenfilename(0))).grid(column=1, row=2, sticky=(W))
 	
-	
-	Label(fr12_1, text="Lookup what Line/Enum#?", bg="white", fg = "blue").grid(column=1, row=5, sticky=(W))
-	txt = Text(fr12_1, width=50, height=2)
-	txt.focus()
-	txt.grid(column=2, row=5, sticky=(W))
+	if DEBUGIN:
+		Label(fr12, text="#####DEBUGGING######", bg="black", fg = "red").grid(column=2, row=1, sticky=(W))
+		Label(fr12, text="Lookup what Line/Enum#?", bg="white", fg = "blue").grid(column=1, row=5, sticky=(W))
+		txt = Text(fr12, width=50, height=2)
+		txt.focus()
+		txt.grid(column=2, row=5, sticky=(W))
 
-	Button(fr12_1, text="Get Tab", command=(lambda: LookupEnum(1, txt.get('1.0', END)))).grid(column=1, row=6, sticky=(W))
-	Button(fr12_1, text="Get Field", command=(lambda: LookupEnum(2, txt.get('1.0', END)))).grid(column=2, row=6, sticky=(W))
+		Button(fr12, text="Get Tab#", command=(lambda: LookupEnum(1, txt.get('1.0', END)))).grid(column=1, row=6, sticky=(W))
+	#Button(fr12_1, text="Get Field", command=(lambda: LookupEnum(2, txt.get('1.0', END)))).grid(column=2, row=6, sticky=(W))
 	
 	Button(fr12, text="Run Files", command=(lambda: mainRead(File1, File2, outFile, note))).grid(column=1, row=4, sticky=(W))
 	Button(fr12, text="EXIT", command=(lambda: sys.exit())).grid(column=1, row=8, sticky=(W, E))
 	
 	log = Text(fr12_2, state='disabled')#.grid(column=2, row=3, sticky=(W))
 	log.grid(column=1, row=1, sticky=(N,W))
+
 	
 	note.focus_on(tab12)
 	root.mainloop()
