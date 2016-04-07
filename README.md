@@ -13,5 +13,22 @@ If you dont have 3.4 you may be able to use the CMD version
 
 ##Usage
 
-Run gCodeParseGUI.py in python, select the 2 s3d gcode files to compare then press the "Compare the Files" button.
+Using python Run gCodeParseGUI.py select the 2 s3d gcode files to compare then press the "Compare the Files" button.
 The script will add new tabs named alike the S3d Settings, anything that differs will appear in red. 
+
+##example commands
+if python 3.5 is installed @ C:\python35 
+and the script is at C:\Simplifi3dSettings
+
+To use the GUI at the command prompt type:
+C:\python35\python.exe C:\Simplifi3dSettings\gCodeParseGUI.py
+
+To use the Command prompt only version type:
+C:\python35\python.exe C:\Simplifi3dSettings\gCodeParse_CMD.py [Full path+File to compare1] [Full path+File to compare2]
+
+Note: It may help to enclose the paths and files with ""'s
+
+
+
+
+
