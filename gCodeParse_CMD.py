@@ -1,3 +1,8 @@
+###This is a command line version of gcode compare. 
+### It only requires python 3.2
+### Files are passed in as args, or hard coded.
+
+
 import sys
 import string
 import time

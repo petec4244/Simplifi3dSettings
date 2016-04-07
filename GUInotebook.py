@@ -1,3 +1,7 @@
+###This is a generic tkinter notebook class derived from various online examples
+###It has been modified greatly to allow more customization of the created components
+
+
 import os
 from tkinter import *
 import tkinter.constants as Tkconstants
@@ -50,14 +54,7 @@ def add_LblFrame(place, txt):
 	#retFrame = ttk.LabelFrame(place, text=txt).grid(column=1, row=1, sticky = (W))
 	retFrame.pack(fill=BOTH, expand=0)
 	return retFrame
-	
-# def addtoPlace(place, additem):
-	# place.add(additem)
-	
-# def getGrid(col, rw, stcky):
-	# grid = grid(column=col, row=row, sticky=(stcky))
-	# return grid
-	
+		
 #use default colors
 def Lbl(place, txt, col, rw, stcky):
 	#default colors
